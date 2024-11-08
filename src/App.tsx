@@ -4,18 +4,26 @@ import { useState, useEffect } from 'react';
 import { AuthClient } from "@dfinity/auth-client";
 import { Actor, HttpAgent } from "@dfinity/agent";
 
+interface PlayerStats {
+  totalPlays: bigint;
+  wins: bigint;
+  lastPlayed: bigint;
+}
+
 function App() {
   const [result, setResult] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  const { data: playerStats, call: refetchStats } = useQueryCall({
+  const { data: playerStats, call: refetchStats } = useQueryCall<[PlayerStats] | null>({
+    // @ts-ignore
     functionName: 'getPlayerStats',
     agent: authClient?.getIdentity() ? new HttpAgent({
       identity: authClient.getIdentity(),
       host: "https://ic0.app" 
     }) : undefined,
+    // @ts-ignore
     args: [],
   });
 
@@ -101,7 +109,7 @@ function App() {
                 <h2 className="text-3xl font-bold text-gray-800 mb-4">Your Stats</h2>
                 <div className="text-5xl font-bold text-blue-600">
                   {/* @ts-ignore */}
-                  {playerStats ? `${playerStats.wins}/${playerStats.totalPlays}` : 'Loading...'} 
+                  {playerStats ? `${Number(playerStats[0].wins)}/${Number(playerStats[0].totalPlays)}` : 'Loading...'} 
                   <span className="text-2xl ml-3 text-yellow-500">Wins</span>
                 </div>
               </div>
