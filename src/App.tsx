@@ -12,10 +12,20 @@ function App() {
 
   const { data: playerStats, call: refetchStats } = useQueryCall({
     functionName: 'getPlayerStats',
+    agent: authClient?.getIdentity() ? new HttpAgent({
+      identity: authClient.getIdentity(),
+      host: "https://ic0.app" 
+    }) : undefined,
+    args: [],
   });
 
   const { call: playLuckyDraw, loading: playLoading, error } = useUpdateCall({
     functionName: 'playLuckyDraw',
+    agent: authClient?.getIdentity() ? new HttpAgent({
+      identity: authClient.getIdentity(),
+      host: "https://ic0.app"
+    }) : undefined,
+    args: [],
     onSuccess: (response: unknown) => {
       setResult(response as string);
       refetchStats();
@@ -61,20 +71,22 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-blue-900 to-blue-700 flex flex-col">
-      <header className="bg-blue-950/50 shadow-lg backdrop-blur-lg sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white">
-            🎲 Lucky Draw Game 🎲
+    <div className="min-h-screen w-full bg-white">
+      <header className="w-full glass-effect shadow-md sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-gray-800 flex items-center gap-3">
+            <span className="dice-float">🎲</span>
+            Lucky Draw
+            <span className="dice-float" style={{ animationDelay: '0.5s' }}>🎲</span>
           </h1>
           {isAuthenticated && (
             <button
               onClick={logout}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all flex items-center gap-2"
+              className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all flex items-center gap-2 shadow-lg"
             >
               <span>Logout</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3zm11 4.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L11.586 7H6a1 1 0 1 1 0-2h5.586L8.293 1.707a1 1 0 0 1 1.414-1.414L14 4.586v2.828z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414-1.414L11.586 7H6a1 1 0 110-2h5.586L8.293 1.707a1 1 0 011.414-1.414L14 4.586v2.828z" clipRule="evenodd" />
               </svg>
             </button>
           )}
@@ -82,54 +94,56 @@ function App() {
       </header>
 
       {isAuthenticated ? (
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8 mb-8">
+        <main className="flex-1 w-full p-6 sm:p-8 lg:p-12">
+          <div className="space-y-8">
+            <div className="bg-gray-50 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow">
               <div className="text-center">
-                <h2 className="text-2xl font-semibold text-white mb-2">Your Stats</h2>
-                <div className="text-4xl font-bold text-yellow-400">
+                <h2 className="text-3xl font-bold text-gray-800 mb-4">Your Stats</h2>
+                <div className="text-5xl font-bold text-blue-600">
                   {/* @ts-ignore */}
                   {playerStats ? `${playerStats.wins}/${playerStats.totalPlays}` : 'Loading...'} 
-                  <span className="text-xl ml-2 text-yellow-300">wins</span>
+                  <span className="text-2xl ml-3 text-yellow-500">Wins</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8 mb-8">
-              <div className="flex flex-col items-center gap-8">
-                <div className={`w-48 h-48 relative ${isPlaying ? 'animate-pulse' : ''}`}>
-                  <div className="absolute inset-0 rounded-full bg-yellow-400 shadow-lg flex items-center justify-center">
-                    <span className="text-4xl">🎲</span>
+            <div className="bg-gray-50 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+              <div className="flex flex-col items-center gap-10">
+                <div className={`w-56 h-56 relative ${isPlaying ? 'animate-spin' : 'dice-float'}`}>
+                  <div className="absolute inset-0 rounded-full bg-yellow-400 shadow-lg flex items-center justify-center transform transition-all duration-500 hover:scale-110">
+                    <span className="text-7xl">🎲</span>
                   </div>
                 </div>
 
                 <button 
                   onClick={handlePlayLuckyDraw}
                   disabled={playLoading}
-                  className="w-full sm:w-auto px-8 py-3 bg-yellow-400 text-blue-900 text-lg font-semibold rounded-lg hover:bg-yellow-300 transition-all transform hover:scale-105 disabled:bg-yellow-400/50 disabled:transform-none shadow-md"
+                  className="w-full sm:w-auto px-10 py-4 bg-blue-500 text-white text-xl font-bold rounded-xl hover:bg-blue-600 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl"
                 >
-                  {playLoading ? 'Playing...' : 'Try Your Luck!'}
+                  {playLoading ? 'Rolling the Dice...' : 'Try Your Luck! 🎲'}
                 </button>
 
                 {result && !isPlaying && (
-                  <div className={`text-center p-4 rounded-lg w-full ${
-                    result.includes('Congratulations') ? 'bg-green-400/20 text-green-300' : 'bg-red-400/20 text-red-300'
+                  <div className={`text-center p-6 rounded-xl w-full ${
+                    result.includes('Congratulations') 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-red-100 text-red-700'
                   }`}>
                     <p className="text-xl font-semibold">{result}</p>
                   </div>
                 )}
 
                 {error && (
-                  <div className="text-center p-4 bg-red-400/20 rounded-lg w-full">
-                    <p className="text-red-300 font-medium">{error.toString()}</p>
+                  <div className="text-center p-4 bg-red-100 rounded-lg w-full">
+                    <p className="text-red-700 font-medium">{error.toString()}</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8">
-              <h2 className="text-xl font-semibold text-white mb-4">How to Play</h2>
-              <ul className="space-y-2 text-white/80 list-none">
+            <div className="text-center bg-gray-50 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">How to Play</h2>
+              <ul className="space-y-2 text-gray-600 list-none">
                 <li>Click "Try Your Luck!" to play</li>
                 <li>You have a 10% chance to win</li>
                 <li>Your stats will be tracked</li>
@@ -139,14 +153,14 @@ function App() {
           </div>
         </main>
       ) : (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-lg p-8 max-w-md w-full">
-            <div className="text-center text-white">
-              <h2 className="text-2xl font-bold mb-4">Welcome to Lucky Draw Game!</h2>
-              <p className="mb-8 text-white/80">Login with Internet Identity to start playing and tracking your wins!</p>
+        <div className="flex-1 flex items-center justify-center p-4 w-full">
+          <div className="bg-gray-50 rounded-xl shadow-lg p-8 max-w-md w-full">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome to Lucky Draw Game!</h2>
+              <p className="mb-8 text-gray-600">Login with Internet Identity to start playing and tracking your wins!</p>
               <button
                 onClick={login}
-                className="w-full px-8 py-4 bg-yellow-400 text-blue-900 text-lg font-semibold rounded-lg hover:bg-yellow-300 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+                className="w-full px-8 py-4 bg-blue-500 text-white text-lg font-semibold rounded-lg hover:bg-blue-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7 9a7 7 0 1 1 14 0H3z" clipRule="evenodd" />
