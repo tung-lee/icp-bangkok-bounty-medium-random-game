@@ -109,8 +109,8 @@ function App() {
                 <h2 className="text-3xl font-bold text-gray-800 mb-4">Your Stats</h2>
                 <div className="text-5xl font-bold text-blue-600">
                   {/* @ts-ignore */}
-                  {playerStats ? `${Number(playerStats[0].wins)}/${Number(playerStats[0].totalPlays)}` : 'Loading...'} 
-                  <span className="text-2xl ml-3 text-yellow-500">Wins</span>
+                  {/* {playerStats ? `${Number(playerStats[0].wins)}/${Number(playerStats[0].totalPlays)}` : 'Loading...'}  */}
+                  {/* <span className="text-2xl ml-3 text-yellow-500">Wins</span> */}
                 </div>
               </div>
             </div>
